@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { MoreHorizontal, Trash2, Edit, Printer, PlusCircle, FileText, Upload, Undo, X } from "lucide-react";
 import {
   Table,
@@ -11,6 +11,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -287,197 +295,205 @@ export default function SalesPage() {
           <TabsTrigger value="new">{editingSale ? 'Edit Sale' : 'New Sale'}</TabsTrigger>
         </TabsList>
         <TabsContent value="history">
-            <div className="flex flex-wrap items-center gap-4 my-4 p-4 bg-muted/50 rounded-lg">
-                <h3 className="text-sm font-medium">Filter By:</h3>
-                <div className="flex items-center gap-2">
-                    <Label htmlFor="customer-filter" className="text-sm">Customer</Label>
-                    <Select onValueChange={(value) => setCustomerFilter(value === "all" ? "" : value)} value={customerFilter}>
-                        <SelectTrigger id="customer-filter" className="w-[200px]">
-                            <SelectValue placeholder="All Customers" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Customers</SelectItem>
-                            {customers.map(c => <SelectItem key={c.id} value={c.id}>{c.customerName}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Label htmlFor="status-filter" className="text-sm">Status</Label>
-                    <Select onValueChange={(value: "all" | "draft" | "posted") => setStatusFilter(value)} value={statusFilter}>
-                        <SelectTrigger id="status-filter" className="w-[150px]">
-                            <SelectValue placeholder="All Statuses" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Statuses</SelectItem>
-                            <SelectItem value="draft">Draft</SelectItem>
-                            <SelectItem value="posted">Posted</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                {(customerFilter || statusFilter !== 'all') && (
-                    <Button variant="ghost" size="sm" onClick={() => { setCustomerFilter(""); setStatusFilter("all"); }}>
-                        <X className="mr-2 h-4 w-4" /> Clear Filters
-                    </Button>
-                )}
-            </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Sales History</CardTitle>
+              <CardDescription>
+                View and manage your past sales. You can filter sales by customer and status.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center gap-4 mb-4">
+                  <h3 className="text-sm font-medium">Filter By:</h3>
+                  <div className="flex items-center gap-2">
+                      <Label htmlFor="customer-filter" className="text-sm">Customer</Label>
+                      <Select onValueChange={(value) => setCustomerFilter(value === "all" ? "" : value)} value={customerFilter}>
+                          <SelectTrigger id="customer-filter" className="w-[200px]">
+                              <SelectValue placeholder="All Customers" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="all">All Customers</SelectItem>
+                              {customers.map(c => <SelectItem key={c.id} value={c.id}>{c.customerName}</SelectItem>)}
+                          </SelectContent>
+                      </Select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                      <Label htmlFor="status-filter" className="text-sm">Status</Label>
+                      <Select onValueChange={(value: "all" | "draft" | "posted") => setStatusFilter(value)} value={statusFilter}>
+                          <SelectTrigger id="status-filter" className="w-[150px]">
+                              <SelectValue placeholder="All Statuses" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="all">All Statuses</SelectItem>
+                              <SelectItem value="draft">Draft</SelectItem>
+                              <SelectItem value="posted">Posted</SelectItem>
+                          </SelectContent>
+                      </Select>
+                  </div>
+                  {(customerFilter || statusFilter !== 'all') && (
+                      <Button variant="ghost" size="sm" onClick={() => { setCustomerFilter(""); setStatusFilter("all"); }}>
+                          <X className="mr-2 h-4 w-4" /> Clear Filters
+                      </Button>
+                  )}
+              </div>
 
-          <div className="rounded-lg border shadow-sm mt-4 overflow-x-auto">
-            <Table>
-            <TableHeader>
-                <TableRow>
-                <TableHead>Sale ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Total Amount</TableHead>
-                <TableHead>
-                    <span className="sr-only">Actions</span>
-                </TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {isDataLoading ? (
-                    <TableRow>
-                        <TableCell colSpan={6} className="text-center h-24">Loading sales...</TableCell>
-                    </TableRow>
-                ) : filteredSales.length === 0 ? (
-                <TableRow>
-                    <TableCell colSpan={6} className="text-center h-24">No sales found for the selected filters.</TableCell>
-                </TableRow>
-                ) : (
-                filteredSales.map((sale) => (
-                    <TableRow key={sale.id}>
-                    <TableCell className="font-medium">{sale.id}</TableCell>
-                    <TableCell>{sale.customerName}</TableCell>
-                    <TableCell>{formatDate(sale.date)}</TableCell>
-                        <TableCell>
-                        <Badge variant={sale.status === 'posted' ? 'default' : 'secondary'}>
-                            {sale.status}
-                        </Badge>
-                        </TableCell>
-                    <TableCell className="text-right">
-                        {formatCurrency(sale.total)}
-                    </TableCell>
-                    <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                              <Button aria-haspopup="true" size="icon" variant="ghost">
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Toggle menu</span>
-                              </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                               <DropdownMenuItem onSelect={() => handleViewDetails(sale)}>
-                                  <FileText className="mr-2 h-4 w-4"/>
-                                  View Details
-                               </DropdownMenuItem>
-                               <DropdownMenuItem onSelect={() => handlePrint('invoice', sale.id)}>
-                                    <Printer className="mr-2 h-4 w-4" />
-                                    Print Invoice
-                               </DropdownMenuItem>
-                               <DropdownMenuItem onSelect={() => handlePrint('simple', sale.id)}>
-                                    <Printer className="mr-2 h-4 w-4" />
-                                    Print Simple
-                               </DropdownMenuItem>
-                               <DropdownMenuItem onSelect={() => handlePrint('challan', sale.id)}>
-                                    <Printer className="mr-2 h-4 w-4" />
-                                    Print Challan
-                               </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              {sale.status === 'draft' && (
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                            <Upload className="mr-2 h-4 w-4" />
-                                            Post to Ledger
-                                        </DropdownMenuItem>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                This will post the sale to the ledger and create a debit entry for {sale.customerName}. This action can be reversed.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => postSale(sale)}>Confirm</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                               )}
-                               {sale.status === 'posted' && (
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                            <Undo className="mr-2 h-4 w-4" />
-                                            Unpost from Ledger
-                                        </DropdownMenuItem>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                This action will unpost the sale from the ledger and remove the associated transaction.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => unpostSale(sale)}>Confirm</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                               )}
-                              <DropdownMenuItem onSelect={() => handleEditClick(sale)} disabled={sale.status === 'posted'}>
-                                  <Edit className="mr-2 h-4 w-4"/>
-                                  Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <DropdownMenuItem
-                                            className="text-red-500 focus:bg-red-500/10 focus:text-red-500"
-                                            onSelect={(e) => e.preventDefault()}
-                                        >
-                                            <Trash2 className="mr-2 h-4 w-4"/>
-                                            Delete
-                                        </DropdownMenuItem>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                This action cannot be undone. This will permanently delete the sale record {sale.id}
-                                                {sale.status === 'posted' && " and its corresponding entry from the ledger"}.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDelete(sale)}>Confirm</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                    </TableCell>
-                    </TableRow>
-                ))
-                )}
-            </TableBody>
-            </Table>
-          </div>
+              <div className="rounded-lg border shadow-sm overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                      <TableRow>
+                      <TableHead>Sale ID</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Total Amount</TableHead>
+                      <TableHead>
+                          <span className="sr-only">Actions</span>
+                      </TableHead>
+                      </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                      {isDataLoading ? (
+                          <TableRow>
+                              <TableCell colSpan={6} className="text-center h-24">Loading sales...</TableCell>
+                          </TableRow>
+                      ) : filteredSales.length === 0 ? (
+                      <TableRow>
+                          <TableCell colSpan={6} className="text-center h-24">No sales found for the selected filters.</TableCell>
+                      </TableRow>
+                      ) : (
+                      filteredSales.map((sale) => (
+                          <TableRow key={sale.id}>
+                          <TableCell className="font-medium">{sale.id}</TableCell>
+                          <TableCell>{sale.customerName}</TableCell>
+                          <TableCell>{formatDate(sale.date)}</TableCell>
+                              <TableCell>
+                              <Badge variant={sale.status === 'posted' ? 'default' : 'secondary'}>
+                                  {sale.status}
+                              </Badge>
+                              </TableCell>
+                          <TableCell className="text-right">
+                              {formatCurrency(sale.total)}
+                          </TableCell>
+                          <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button aria-haspopup="true" size="icon" variant="ghost">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                    <span className="sr-only">Toggle menu</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                     <DropdownMenuItem onSelect={() => handleViewDetails(sale)}>
+                                        <FileText className="mr-2 h-4 w-4"/>
+                                        View Details
+                                     </DropdownMenuItem>
+                                     <DropdownMenuItem onSelect={() => handlePrint('invoice', sale.id)}>
+                                          <Printer className="mr-2 h-4 w-4" />
+                                          Print Invoice
+                                     </DropdownMenuItem>
+                                     <DropdownMenuItem onSelect={() => handlePrint('simple', sale.id)}>
+                                          <Printer className="mr-2 h-4 w-4" />
+                                          Print Simple
+                                     </DropdownMenuItem>
+                                     <DropdownMenuItem onSelect={() => handlePrint('challan', sale.id)}>
+                                          <Printer className="mr-2 h-4 w-4" />
+                                          Print Challan
+                                     </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    {sale.status === 'draft' && (
+                                      <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                  <Upload className="mr-2 h-4 w-4" />
+                                                  Post to Ledger
+                                              </DropdownMenuItem>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                  <AlertDialogDescription>
+                                                      This will post the sale to the ledger and create a debit entry for {sale.customerName}. This action can be reversed.
+                                                  </AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                  <AlertDialogAction onClick={() => postSale(sale)}>Confirm</AlertDialogAction>
+                                              </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                      </AlertDialog>
+                                     )}
+                                     {sale.status === 'posted' && (
+                                      <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                  <Undo className="mr-2 h-4 w-4" />
+                                                  Unpost from Ledger
+                                              </DropdownMenuItem>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                  <AlertDialogDescription>
+                                                      This action will unpost the sale from the ledger and remove the associated transaction.
+                                                  </AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                  <AlertDialogAction onClick={() => unpostSale(sale)}>Confirm</AlertDialogAction>
+                                              </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                      </AlertDialog>
+                                     )}
+                                    <DropdownMenuItem onSelect={() => handleEditClick(sale)} disabled={sale.status === 'posted'}>
+                                        <Edit className="mr-2 h-4 w-4"/>
+                                        Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                      <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                              <DropdownMenuItem
+                                                  className="text-red-500 focus:bg-red-500/10 focus:text-red-500"
+                                                  onSelect={(e) => e.preventDefault()}
+                                              >
+                                                  <Trash2 className="mr-2 h-4 w-4"/>
+                                                  Delete
+                                              </DropdownMenuItem>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                  <AlertDialogDescription>
+                                                      This action cannot be undone. This will permanently delete the sale record {sale.id}
+                                                      {sale.status === 'posted' && " and its corresponding entry from the ledger"}.
+                                                  </AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                  <AlertDialogAction onClick={() => handleDelete(sale)}>Confirm</AlertDialogAction>
+                                              </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                      </AlertDialog>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                          </TableCell>
+                          </TableRow>
+                      ))
+                      )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
         <TabsContent value="new">
-            <div className="mt-4">
-                <NewSaleForm 
-                    key={editingSale?.id || 'new'}
-                    initialData={editingSale} 
-                    onSaleAdded={handleFormSuccess}
-                    onSaleUpdated={handleFormSuccess}
-                    onCancel={handleCancelEdit}
-                />
-            </div>
+            <NewSaleForm 
+                key={editingSale?.id || 'new'}
+                initialData={editingSale} 
+                onSaleAdded={handleFormSuccess}
+                onSaleUpdated={handleFormSuccess}
+                onCancel={handleCancelEdit}
+            />
         </TabsContent>
       </Tabs>
 

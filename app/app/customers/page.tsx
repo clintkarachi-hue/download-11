@@ -20,6 +20,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -49,7 +57,8 @@ function AddCustomerForm({ onCustomerAdded }: { onCustomerAdded: (newCustomer: O
   const [balanceType, setBalanceType] = useState<'debit' | 'credit'>('debit');
   const { toast } = useToast();
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!customerName || !phoneNumber || !address) {
       toast({ variant: 'destructive', title: 'Please fill all fields.' });
       return;
@@ -72,47 +81,50 @@ function AddCustomerForm({ onCustomerAdded }: { onCustomerAdded: (newCustomer: O
 
   return (
     <DialogContent className="max-w-xl">
-      <DialogHeader>
-        <DialogTitle>Add New Customer</DialogTitle>
-      </DialogHeader>
-      <div className="space-y-4 py-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Customer Name</Label>
-          <Input id="name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="John Doe" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number</Label>
-          <Input id="phone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="0300-1234567" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="address">Address</Label>
-          <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123, Main Street, City" />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit}>
+        <CardHeader>
+          <CardTitle>Add New Customer</CardTitle>
+          <CardDescription>Fill in the details below to add a new customer.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Customer Name</Label>
+            <Input id="name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="John Doe" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input id="phone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="0300-1234567" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="address">Address</Label>
+            <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123, Main Street, City" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-                <Label htmlFor="openingBalance">Opening Balance</Label>
-                <Input id="openingBalance" type="number" value={openingBalance} onChange={(e) => setOpeningBalance(parseFloat(e.target.value) || 0)} placeholder="0" />
+              <Label htmlFor="openingBalance">Opening Balance</Label>
+              <Input id="openingBalance" type="number" value={openingBalance} onChange={(e) => setOpeningBalance(parseFloat(e.target.value) || 0)} placeholder="0" />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="balanceType">Balance Type</Label>
-                <Select onValueChange={(v: 'debit' | 'credit') => setBalanceType(v)} value={balanceType}>
-                    <SelectTrigger id="balanceType">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="debit">Debit (Owed by Customer)</SelectItem>
-                        <SelectItem value="credit">Credit (Paid by Customer)</SelectItem>
-                    </SelectContent>
-                </Select>
+              <Label htmlFor="balanceType">Balance Type</Label>
+              <Select onValueChange={(v: 'debit' | 'credit') => setBalanceType(v)} value={balanceType}>
+                <SelectTrigger id="balanceType">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="debit">Debit (Owed by Customer)</SelectItem>
+                  <SelectItem value="credit">Credit (Paid by Customer)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-        </div>
-        <p className="text-xs text-muted-foreground">
+          </div>
+          <p className="text-xs text-muted-foreground">
             Opening balance creates an initial transaction. Debit means the customer owes you money. Credit means you owe the customer money (or they paid in advance).
-        </p>
-      </div>
-      <DialogFooter>
-        <Button onClick={handleSubmit}>Add Customer</Button>
-      </DialogFooter>
+          </p>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit">Add Customer</Button>
+        </CardFooter>
+      </form>
     </DialogContent>
   );
 }
@@ -121,13 +133,12 @@ function EditCustomerForm({ customer, onCustomerUpdated }: { customer: Customer;
   const [customerName, setCustomerName] = useState(customer.customerName);
   const [phoneNumber, setPhoneNumber] = useState(customer.phoneNumber);
   const [address, setAddress] = useState(customer.address);
-  // Opening balance is not directly editable to maintain ledger integrity.
-  // It should be adjusted via a ledger transaction.
   const [openingBalance] = useState(customer.openingBalance || 0);
   const [balanceType] = useState(customer.balanceType || 'debit');
   const { toast } = useToast();
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!customerName || !phoneNumber || !address) {
       toast({ variant: 'destructive', title: 'Please fill all fields.' });
       return;
@@ -136,7 +147,6 @@ function EditCustomerForm({ customer, onCustomerUpdated }: { customer: Customer;
       customerName,
       phoneNumber,
       address,
-      // Pass the original opening balance values, even though they aren't edited here
       openingBalance,
       balanceType
     };
@@ -146,47 +156,50 @@ function EditCustomerForm({ customer, onCustomerUpdated }: { customer: Customer;
 
   return (
     <DialogContent className="max-w-xl">
-      <DialogHeader>
-        <DialogTitle>Edit Customer</DialogTitle>
-      </DialogHeader>
-      <div className="space-y-4 py-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Customer Name</Label>
-          <Input id="name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="John Doe" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number</Label>
-          <Input id="phone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="0300-1234567" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="address">Address</Label>
-          <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123, Main Street, City" />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit}>
+        <CardHeader>
+          <CardTitle>Edit Customer</CardTitle>
+          <CardDescription>Update the details for {customer.customerName}.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Customer Name</Label>
+            <Input id="name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="John Doe" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input id="phone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="0300-1234567" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="address">Address</Label>
+            <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123, Main Street, City" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-                <Label htmlFor="openingBalance">Opening Balance</Label>
-                <Input id="openingBalance" type="number" value={openingBalance} disabled placeholder="0" />
+              <Label htmlFor="openingBalance">Opening Balance</Label>
+              <Input id="openingBalance" type="number" value={openingBalance} disabled placeholder="0" />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="balanceType">Balance Type</Label>
-                <Select value={balanceType} disabled>
-                    <SelectTrigger id="balanceType">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="debit">Debit (Owed by Customer)</SelectItem>
-                        <SelectItem value="credit">Credit (Paid by Customer)</SelectItem>
-                    </SelectContent>
-                </Select>
+              <Label htmlFor="balanceType">Balance Type</Label>
+              <Select value={balanceType} disabled>
+                <SelectTrigger id="balanceType">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="debit">Debit (Owed by Customer)</SelectItem>
+                  <SelectItem value="credit">Credit (Paid by Customer)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-        </div>
-        <p className="text-xs text-muted-foreground">
+          </div>
+          <p className="text-xs text-muted-foreground">
             Opening balance cannot be edited directly. To correct an opening balance, please reverse the original transaction in the Ledger and create a new one.
-        </p>
-      </div>
-      <DialogFooter>
-        <Button onClick={handleSubmit}>Save Changes</Button>
-      </DialogFooter>
+          </p>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit">Save Changes</Button>
+        </CardFooter>
+      </form>
     </DialogContent>
   );
 }

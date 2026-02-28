@@ -13,16 +13,12 @@
   },
   "enabledTools": {
     "firebase": [
-      "auth_get_users",
-      "auth_update_user",
-      "auth_set_sms_region_policy",
       "firebase_login",
       "firebase_logout",
       "firebase_validate_security_rules",
       "firebase_get_project",
       "firebase_list_apps",
       "firebase_list_projects",
-      "firebase_get_sdk_config",
       "firebase_create_project",
       "firebase_create_app",
       "firebase_create_android_sha",
@@ -31,6 +27,9 @@
       "firebase_init",
       "firebase_get_security_rules",
       "firebase_read_resources",
+      "auth_get_users",
+      "auth_update_user",
+      "auth_set_sms_region_policy",
       "firestore_get_document",
       "firestore_add_document",
       "firestore_update_document",
@@ -44,7 +43,8 @@
       "firestore_delete_database",
       "firestore_get_index",
       "firestore_list_indexes",
-      "firestore_delete_index"
+      "firestore_delete_index",
+      "firebase_get_sdk_config"
     ]
   }
 }

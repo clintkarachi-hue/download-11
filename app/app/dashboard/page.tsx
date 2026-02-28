@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Library } from "lucide-react"
@@ -196,8 +195,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 mt-8">
-        <Card className="col-span-12 lg:col-span-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-8">
+        <Card>
           <CardHeader>
             <CardTitle>Revenue & Expense Overview</CardTitle>
             <CardDescription>Monthly performance.</CardDescription>
@@ -231,7 +230,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-12 lg:col-span-3">
+        <Card>
           <CardHeader>
             <CardTitle>Today's Summary</CardTitle>
             <CardDescription>Sales and expenses for today.</CardDescription>
