@@ -391,7 +391,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
                 const newTransactionRef = doc(collection(firestore, 'transactions'));
                 const transactionData: Omit<Transaction, 'id'> = {
-                    description: `Sale Invoice: ${newSaleId}`,
+                    description: manualSale.description, // Correctly includes the description
                     amount: newSaleData.total,
                     type: 'debit',
                     category: 'Sale',
@@ -776,4 +776,3 @@ export const useData = () => {
   return context;
 };
 
-    

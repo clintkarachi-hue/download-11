@@ -29,13 +29,14 @@ interface ComboboxProps {
 export function Combobox({ options, value, onValueChange, placeholder = "Select..." }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
 
-  // This custom filter allows searching by the item's display name (label) 
+  // This custom filter allows searching by the item's display name (label)
   // instead of its internal ID (value).
   const filter = (itemValue: string, search: string) => {
     // Find the label corresponding to the item's value (which is the ID)
-    const label = options.find(option => option.value === itemValue)?.label;
-    
-    // If the label contains the search text, it's a match.
+    const option = options.find(option => option.value === itemValue);
+    const label = option?.label;
+
+    // If the label exists and contains the search text, it's a match.
     if (label && label.toLowerCase().includes(search.toLowerCase())) {
         return 1; // A score of 1 indicates a match.
     }
